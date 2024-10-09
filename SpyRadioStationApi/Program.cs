@@ -5,6 +5,13 @@ using SpyRadioStationApi.Interfaces.CodeMachines;
 using SpyRadioStationApi.Implementation.CodeMachines;
 using SpyRadioStationApi.Implementation.Services;
 using SpyRadioStationApi.Interfaces.Services;
+using Microsoft.Extensions.Configuration;
+using System.Configuration;
+using SpyRadioStationApi.Interfaces.db;
+using SpyRadioStationApi.Implementation.db;
+using SpyRadioStationApi.Extensions;
+using Coravel;
+using SpyRadioStationApi.Jobs;
 
 namespace SpyRadioStationApi
 {
@@ -17,8 +24,13 @@ namespace SpyRadioStationApi
             // Add services to the container.
             //builder.Services.AddAuthorization();
 
+            builder.Services.AddScheduler();
             builder.Services.AddScoped<ICodeMachine, EnigmaMachine>();
             builder.Services.AddScoped<ICodeService, CodeService>();
+            builder.Services.AddSingleton<IDatabaseBootstrap, DatabaseBootstrap>();
+            builder.Services.AddTransient<PreparingCodeMessageJob>();
+
+            builder.Services.Configure<DbConfiguration>(options => builder.Configuration.GetSection("Database").Bind(options));
 
             builder.Services.AddFastEndpoints();
             builder.Services.AddEndpointsApiExplorer();
@@ -33,6 +45,16 @@ namespace SpyRadioStationApi
             });
             var app = builder.Build();
 
+            app.UseDatabaseUpdate();
+            
+            app.Services.UseScheduler(scheduler =>
+            {
+                scheduler.Schedule<PreparingCodeMessageJob>()//.EveryMinute();
+                    .Cron("* * * * *")
+                    .Zoned(TimeZoneInfo.Local)
+                    .PreventOverlapping(nameof(PreparingCodeMessageJob));
+
+            });
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -43,6 +65,8 @@ namespace SpyRadioStationApi
             app.UseHttpsRedirection();
             app.UseFastEndpoints();
             app.Run();
+
+         
         }
     }
 }
