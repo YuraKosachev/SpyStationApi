@@ -1,9 +1,12 @@
 ﻿using FastEndpoints;
+using Microsoft.Extensions.Options;
+using SpyRadioStationApi.Configurations;
 using SpyRadioStationApi.Contracts.Request;
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Interfaces.Services;
 using SpyRadioStationApi.Models;
+using System.Configuration;
 
 namespace SpyRadioStationApi.Endpoints
 {
@@ -11,12 +14,14 @@ namespace SpyRadioStationApi.Endpoints
     {
         private readonly ICodeService _codeService;
         private readonly IKeyCodeMachineRepository _codeMachineRepository;
-
+        private readonly Access _access;
         public PostEncodeEndpoint(ICodeService codeService,
-            IKeyCodeMachineRepository codeMachineRepository)
+            IKeyCodeMachineRepository codeMachineRepository,
+            IOptions<Access> access)
         {
             _codeMachineRepository = codeMachineRepository;
             _codeService = codeService;
+            _access = access?.Value ?? throw new ArgumentNullException(nameof(access));
         }
         public override void Configure()
         {
@@ -25,6 +30,11 @@ namespace SpyRadioStationApi.Endpoints
         }
         public override async Task HandleAsync(CodeRequest req, CancellationToken ct)
         {
+            var accessKey = HttpContext.Request?.Headers["SPY-Access"];
+
+            if (!accessKey.Equals(_access.Key))
+                await SendErrorsAsync(401, ct);
+
             if (string.IsNullOrEmpty(req?.message))
                 await SendErrorsAsync();
 

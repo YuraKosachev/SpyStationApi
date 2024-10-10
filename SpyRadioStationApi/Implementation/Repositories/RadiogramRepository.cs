@@ -23,7 +23,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
             using var connection = new SqliteConnection(_configuration.DatabaseName);
 
             await connection.QueryAsync("""
-                INSERT INTO Radiograms(Message, Encode, CreateAt ) VALUES(@message, @encode, @date)
+                INSERT INTO Radiograms(Message, Encode, CreateAt ) VALUES(@message, @encode, @date);
                 """, new { message = radiogram.Message, encode = radiogram.Encode, date = radiogram.CreateAt });
         }
 
@@ -31,7 +31,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
         {
             StringBuilder builder = new StringBuilder();
             foreach (Radiogram radiogram in radiograms) {
-                builder.Append($"INSERT INTO Radiograms(Message, Encode, CreateAt ) VALUES('{radiogram.Message}', '{radiogram.Encode}', '{radiogram.CreateAt}')");
+                builder.Append($"INSERT INTO Radiograms(Message, Encode, CreateAt ) VALUES('{radiogram.Message}', '{radiogram.Encode}', '{radiogram.CreateAt}');");
             }
             using var connection = new SqliteConnection(_configuration.DatabaseName);
 

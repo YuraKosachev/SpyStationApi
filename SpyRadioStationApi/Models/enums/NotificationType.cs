@@ -4,6 +4,7 @@
     {
         Error,
         Info,
-        Warning
+        Warning,
+        Winner
     }
 }

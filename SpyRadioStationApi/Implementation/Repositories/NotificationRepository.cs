@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
-using SpyRadioStationApi.Implementation.db;
+using SpyRadioStationApi.Configurations;
 using SpyRadioStationApi.Implementation.Mapping;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Models.db;
@@ -23,8 +23,8 @@ namespace SpyRadioStationApi.Implementation.Repositories
             using var connection = new SqliteConnection(_configuration.DatabaseName);
 
             await connection.QueryAsync("""
-                INSERT INTO Notifications(Message, Status, Type, CreateAt ) VALUES(@message, @status, @type @date)
-                """, new { message = notification.Message, status = (int)Status.New, type = (int)notification.NotificationType, date = DateTime.Now }),;
+                INSERT INTO Notifications(Message, Status, Type, CreateAt ) VALUES(@message, @status, @type, @date)
+                """, new { message = notification.Message, status = (int)Status.New, type = (int)notification.NotificationType, date = DateTime.Now });
         }
 
         public async Task DeleteByStatusAsync(Status status)
@@ -72,11 +72,10 @@ namespace SpyRadioStationApi.Implementation.Repositories
         {
             using var connection = new SqliteConnection(_configuration.DatabaseName);
 
-            await connection.QueryAsync("""
-                UPDATE Notifications
-                SET Status = @status
-                WHERE Id in ( @ids )
-                """, new { status = (int)status, ids = string.Join(",", ids) });
+            var predicate = string.Join(" OR ", ids.Select(x => $"Id={x}").ToArray());
+            var query = $"UPDATE Notifications SET Status = {(int)status} WHERE {predicate}";
+
+            await connection.QueryAsync(query);
         }
     }
 }

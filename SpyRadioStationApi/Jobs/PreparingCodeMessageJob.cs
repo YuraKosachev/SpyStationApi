@@ -44,7 +44,6 @@ namespace SpyRadioStationApi.Jobs
                 Plugboard = key?.Plugboard
             };
 
-            var result = new List<Radiogram>();
             foreach (var message in messages)
             {
                 var checkMessage = message?.Trim().ToUpper();
@@ -55,7 +54,7 @@ namespace SpyRadioStationApi.Jobs
                 try
                 {
                     var encode = _codeService.GetCodeMessage(checkMessage, setting);
-                    await _radiogramRepository.CreateAsync(new Radiogram { Message = checkMessage, Encode = encode, CreateAt = DateTime.Now });
+                    await _radiogramRepository.CreateAsync(new Radiogram { Message = checkMessage, Encode = encode, CreateAt = DateTime.Now });;
                 }
                 catch (Exception ex)
                 {

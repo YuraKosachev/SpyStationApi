@@ -42,11 +42,13 @@ namespace SpyRadioStationApi.Implementation.Mapping
         public static Notification ToNotification(dynamic src) {
             if (src == null) return null;
 
+
             return new Notification
             {
                 Id = (int)src.Id,
                 Message = (string)src.Message,
                 Status = (Status)src.Status,
+                NotificationType = (NotificationType)src.Type,
                 CreateAt = DateTime.Parse(src.CreateAt)
             };
         }

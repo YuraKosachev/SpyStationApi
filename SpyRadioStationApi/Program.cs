@@ -15,6 +15,7 @@ using SpyRadioStationApi.Implementation.Repositories;
 using SpyRadioStationApi.Implementation.Handlers;
 using SpyRadioStationApi.Models.db;
 using SpyRadioStationApi.Configurations;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace SpyRadioStationApi
 {
@@ -41,6 +42,7 @@ namespace SpyRadioStationApi
 
             builder.Services.Configure<DbConfiguration>(options => builder.Configuration.GetSection("Database").Bind(options));
             builder.Services.Configure<Telegram>(options => builder.Configuration.GetSection("Telegram").Bind(options));
+            builder.Services.Configure<Access>(options => builder.Configuration.GetSection("Access").Bind(options));
 
             builder.Services.AddFastEndpoints();
             builder.Services.AddEndpointsApiExplorer();
@@ -56,7 +58,10 @@ namespace SpyRadioStationApi
             var app = builder.Build();
 
             app.UseDatabaseUpdate();
-
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             app.Services.UseScheduler(scheduler =>
             {
                 scheduler.Schedule<PreparingCodeMessageJob>()
@@ -70,7 +75,7 @@ namespace SpyRadioStationApi
                     .PreventOverlapping(nameof(RemoveCodeMessageJob));
 
                 scheduler.Schedule<NotificationJob>()
-                    .Cron("5 * * * *")
+                    .Cron("*/2 * * * *")
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(NotificationJob));
 
