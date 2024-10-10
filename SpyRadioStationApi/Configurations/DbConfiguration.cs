@@ -1,4 +1,4 @@
-﻿namespace SpyRadioStationApi.Implementation.db
+﻿namespace SpyRadioStationApi.Configurations
 {
     public class DbConfiguration
     {

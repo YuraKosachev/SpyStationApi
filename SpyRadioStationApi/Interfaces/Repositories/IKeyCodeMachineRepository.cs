@@ -4,6 +4,6 @@ namespace SpyRadioStationApi.Interfaces.Repositories
 {
     public interface IKeyCodeMachineRepository
     {
-        Task<Radiogram> GetByDay(int day);
+        Task<Key> GetByDayAsync(int day);
     }
 }

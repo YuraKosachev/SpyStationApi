@@ -11,15 +11,8 @@ namespace SpyRadioStationApi.Implementation.Services
         {
             _codeMachine = codeMachine;
         }
-        public string GetCodeMessage(string src)
+        public string GetCodeMessage(string src, Settings settings)
         {
-            //TO DO get text for coding 
-            var settings = new Settings
-            {
-                FastRotorLetter = 'A',
-                SlowRotorLetter = 'A',
-                MediumRotorLetter = 'A'
-            };
             return _codeMachine.Encode(src, settings);
         }
     }

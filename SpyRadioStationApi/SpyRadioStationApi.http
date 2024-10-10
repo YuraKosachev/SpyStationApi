@@ -1,4 +1,4 @@
-@SpyRadioStationApi_HostAddress = http://localhost:5265
+@SpyRadioStationApi_HostAddress = https://localhost:7108
 
 GET {{SpyRadioStationApi_HostAddress}}/spy/enigma/message
 Accept: application/json

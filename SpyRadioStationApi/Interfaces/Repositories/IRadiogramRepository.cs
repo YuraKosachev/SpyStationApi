@@ -4,10 +4,13 @@ namespace SpyRadioStationApi.Interfaces.Repositories
 {
     public interface IRadiogramRepository
     {
-        Task Create(Radiogram radiogram);
-        Task<IReadOnlyCollection<Radiogram>> GetAll();
-        Task<Radiogram> GetById(Guid Id);
+        Task CreateAsync(Radiogram radiogram);
+        Task CreateRangeAsync(IList<Radiogram> radiograms);
+        Task<IList<Radiogram>> GetAllAsync();
+        Task<Radiogram> GetByIdAsync(int Id);
+        Task<bool> ValidationAsync(string encode, string decode);
+        Task<Radiogram> GetLastByDateAsync();
 
-        Task<Radiogram> GetLastByDate(DateTime date);
+        Task DeleteUntilAsync(DateTime date);
     }
 }

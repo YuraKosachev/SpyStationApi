@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
+using SpyRadioStationApi.Configurations;
 using SpyRadioStationApi.Interfaces.db;
 using SpyRadioStationApi.Models.db;
 using System.Text;
