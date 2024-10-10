@@ -35,20 +35,25 @@ namespace SpyRadioStationApi.Implementation.db
                 .Select(m => m.Name).ToArray();
 
             StringBuilder builder = new StringBuilder();
-
+            StringBuilder migrationBuilder = new StringBuilder();
             foreach (var file in files)
             {
                 var name = Path.GetFileName(file);
                 if (migrations.Contains(name))
                     continue;
 
+                migrationBuilder.Append($"INSERT INTO Migrations(Name,Date) VALUES('{name}','{DateTime.Now}');");
                 builder.Append(File.ReadAllText(file));
             }
 
             var query = builder.ToString();
+            var queryMigration = migrationBuilder.ToString();
 
             if(!string.IsNullOrEmpty(query))
                 await connection.ExecuteAsync(query);
+
+            if(!string.IsNullOrEmpty(queryMigration))
+                await connection.ExecuteAsync(queryMigration);
         }
 
 
