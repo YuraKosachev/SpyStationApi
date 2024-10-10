@@ -7,7 +7,7 @@ using SpyRadioStationApi.Interfaces.Services;
 
 namespace SpyRadioStationApi.Endpoints
 {
-    public record InformationResponse(string access, string token);
+    public record InformationResponse(string access, string token, bool isdbFolderExists, string db, string diff);
     public class GetTestInformationEndpoint : EndpointWithoutRequest<InformationResponse>
     {
         private readonly DbConfiguration _dbConfiguration;
@@ -29,7 +29,8 @@ namespace SpyRadioStationApi.Endpoints
 
         public override async Task HandleAsync(CancellationToken ct)
         {
-           await SendOkAsync(new InformationResponse(_access?.Key, _telegram?.Token));
+            var i = Directory.Exists("db");
+           await SendOkAsync(new InformationResponse(_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff));
             
         }
     }
