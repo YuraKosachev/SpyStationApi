@@ -29,12 +29,12 @@ namespace SpyRadioStationApi
             // Add services to the container.
             //builder.Services.AddAuthorization();
 
-            if (builder.Environment.IsDevelopment()) 
-            {
-                builder.Configuration.AddJsonFile("/etc/secrets/secrets.json",
-                 optional: true,
-                 reloadOnChange: true);
-            }
+            //if (builder.Environment.IsDevelopment()) 
+            //{
+            //    builder.Configuration.AddJsonFile("/etc/secrets/secrets.json",
+            //     optional: true,
+            //     reloadOnChange: true);
+            //}
 
             //builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
             builder.Services.AddScheduler();
