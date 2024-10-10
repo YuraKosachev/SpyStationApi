@@ -23,6 +23,9 @@ namespace SpyRadioStationApi.Implementation.db
                 .Where(file => file.EndsWith(".sql"))
                 .ToList();
 
+            if (!Directory.Exists(_configuration.DbFolder))
+                Directory.CreateDirectory(_configuration?.DbFolder);
+
             using var connection = new SqliteConnection(_configuration.DatabaseName);
 
             await connection.ExecuteAsync("""
@@ -49,10 +52,10 @@ namespace SpyRadioStationApi.Implementation.db
             var query = builder.ToString();
             var queryMigration = migrationBuilder.ToString();
 
-            if(!string.IsNullOrEmpty(query))
+            if (!string.IsNullOrEmpty(query))
                 await connection.ExecuteAsync(query);
 
-            if(!string.IsNullOrEmpty(queryMigration))
+            if (!string.IsNullOrEmpty(queryMigration))
                 await connection.ExecuteAsync(queryMigration);
         }
 

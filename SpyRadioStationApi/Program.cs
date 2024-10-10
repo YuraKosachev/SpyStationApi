@@ -50,6 +50,7 @@ namespace SpyRadioStationApi
                 }
                 options.Diff = Environment.GetEnvironmentVariable("DB_Diff");
                 options.DatabaseName = Environment.GetEnvironmentVariable("DB_DatabaseName");
+                options.DbFolder = Environment.GetEnvironmentVariable("DB_Folder");
 
             });
             builder.Services.Configure<Telegram>(options =>
