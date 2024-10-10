@@ -16,6 +16,7 @@ using SpyRadioStationApi.Implementation.Handlers;
 using SpyRadioStationApi.Models.db;
 using SpyRadioStationApi.Configurations;
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Reflection;
 
 namespace SpyRadioStationApi
 {
@@ -28,6 +29,14 @@ namespace SpyRadioStationApi
             // Add services to the container.
             //builder.Services.AddAuthorization();
 
+            if (builder.Environment.IsDevelopment()) 
+            {
+                builder.Configuration.AddJsonFile("/etc/secrets/secrets.json",
+                 optional: true,
+                 reloadOnChange: true);
+            }
+
+            //builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
             builder.Services.AddScheduler();
             builder.Services.AddScoped<ICodeMachine, EnigmaMachine>();
             builder.Services.AddScoped<ICodeService, CodeService>();
