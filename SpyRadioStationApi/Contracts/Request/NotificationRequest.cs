@@ -1,6 +1,5 @@
 ﻿namespace SpyRadioStationApi.Contracts.Request
 {
-    public class NotificationRequest
-    {
-    }
+    public record NotificationRequest(string message, int type);
+
 }
