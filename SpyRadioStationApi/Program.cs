@@ -29,14 +29,6 @@ namespace SpyRadioStationApi
             // Add services to the container.
             //builder.Services.AddAuthorization();
 
-            //if (builder.Environment.IsDevelopment()) 
-            //{
-            //    builder.Configuration.AddJsonFile("/etc/secrets/secrets.json",
-            //     optional: true,
-            //     reloadOnChange: true);
-            //}
-
-            //builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
             builder.Services.AddScheduler();
             builder.Services.AddScoped<ICodeMachine, EnigmaMachine>();
             builder.Services.AddScoped<ICodeService, CodeService>();
@@ -49,9 +41,39 @@ namespace SpyRadioStationApi
             builder.Services.AddTransient<NotificationJob>();
             builder.Services.AddHttpClient();
 
-            builder.Services.Configure<DbConfiguration>(options => builder.Configuration.GetSection("Database").Bind(options));
-            builder.Services.Configure<Telegram>(options => builder.Configuration.GetSection("Telegram").Bind(options));
-            builder.Services.Configure<Access>(options => builder.Configuration.GetSection("Access").Bind(options));
+            builder.Services.Configure<DbConfiguration>(options =>
+            {
+                if (builder.Environment.IsDevelopment())
+                {
+                    builder.Configuration.GetSection("Database").Bind(options);
+                    return;
+                }
+                options.Diff = Environment.GetEnvironmentVariable("DB_Diff");
+                options.DatabaseName = Environment.GetEnvironmentVariable("DB_DatabaseName");
+
+            });
+            builder.Services.Configure<Telegram>(options =>
+            {
+                if (builder.Environment.IsDevelopment())
+                {
+                    builder.Configuration.GetSection("Telegram").Bind(options);
+                    return;
+                }
+                options.Token = Environment.GetEnvironmentVariable("Telegram_Token");
+                options.ChatId = Environment.GetEnvironmentVariable("Telegram_ChatId") != null
+                ? int.Parse(Environment.GetEnvironmentVariable("Telegram_ChatId"))
+                : default;
+            });
+            builder.Services.Configure<Access>(options =>
+            {
+                if (builder.Environment.IsDevelopment())
+                {
+                    builder.Configuration.GetSection("Access").Bind(options);
+                }
+                options.Key = Environment.GetEnvironmentVariable("Access_Key");
+
+
+            });
 
             builder.Services.AddFastEndpoints();
             builder.Services.AddEndpointsApiExplorer();
