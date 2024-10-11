@@ -17,6 +17,7 @@ using SpyRadioStationApi.Models.db;
 using SpyRadioStationApi.Configurations;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Reflection;
+using SpyRadioStationApi.Handlers;
 
 namespace SpyRadioStationApi
 {
@@ -28,7 +29,8 @@ namespace SpyRadioStationApi
 
             // Add services to the container.
             //builder.Services.AddAuthorization();
-
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
             builder.Services.AddScheduler();
             builder.Services.AddScoped<ICodeMachine, EnigmaMachine>();
             builder.Services.AddScoped<ICodeService, CodeService>();
@@ -95,6 +97,7 @@ namespace SpyRadioStationApi
 
             var app = builder.Build();
 
+            app.UseExceptionHandler();
             app.UseDatabaseUpdate();
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
