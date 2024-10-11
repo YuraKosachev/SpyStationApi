@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="db\SpyStationDb.sqlite" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="db\SpyStationDb.sqlite">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Coravel" Version="6.0.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="FastEndpoints" Version="5.30.0" />
@@ -21,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="db\" />
     <Folder Include="diff\" />
   </ItemGroup>
 
