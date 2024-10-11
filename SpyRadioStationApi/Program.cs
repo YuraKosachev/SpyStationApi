@@ -39,6 +39,7 @@ namespace SpyRadioStationApi
             builder.Services.AddTransient<RemoveCodeMessageJob>();
             builder.Services.AddTransient<NotificationJob>();
             builder.Services.AddTransient<DatabaseActualizationJob>();
+            builder.Services.AddTransient<CheckPulseJob>();
             builder.Services.AddHttpClient();
 
             builder.Services.Configure<DbConfiguration>(options =>
@@ -75,6 +76,14 @@ namespace SpyRadioStationApi
 
 
             });
+            builder.Services.Configure<Pulse>(options =>
+            {
+                if (builder.Environment.IsDevelopment())
+                {
+                    builder.Configuration.GetSection("Pulse").Bind(options);
+                }
+                options.Address = Environment.GetEnvironmentVariable("Pulse_Address");
+            });
 
             builder.Services.AddFastEndpoints();
             builder.Services.AddEndpointsApiExplorer();
@@ -102,6 +111,11 @@ namespace SpyRadioStationApi
             });
             app.Services.UseScheduler(scheduler =>
             {
+                scheduler.Schedule<CheckPulseJob>()
+                   .Cron("*/1 * * * *")
+                   .Zoned(TimeZoneInfo.Local)
+                   .PreventOverlapping(nameof(CheckPulseJob));
+
                 scheduler.Schedule<PreparingCodeMessageJob>()
                     .Cron("0 * * * *")
                     .Zoned(TimeZoneInfo.Local)
