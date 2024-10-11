@@ -12,11 +12,8 @@ using Coravel;
 using SpyRadioStationApi.Jobs;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Implementation.Repositories;
-using SpyRadioStationApi.Implementation.Handlers;
-using SpyRadioStationApi.Models.db;
 using SpyRadioStationApi.Configurations;
 using Microsoft.AspNetCore.HttpOverrides;
-using System.Reflection;
 using SpyRadioStationApi.Handlers;
 
 namespace SpyRadioStationApi

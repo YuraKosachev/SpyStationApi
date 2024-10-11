@@ -37,7 +37,15 @@ namespace SpyRadioStationApi.Endpoints
 
         public override async Task HandleAsync(CancellationToken ct)
         {
-            await _bootstrap.Setup();
+            var accessKey = HttpContext.Request?.Headers["SPY-Access"];
+
+            if (!accessKey.Equals(_access.Key))
+                await SendErrorsAsync(401, ct);
+
+            var isSetup = Query<bool>("needUpdate", false);
+
+            if (isSetup)
+                await _bootstrap.Setup();
 
             using var connection = new SqliteConnection(_dbConfiguration.DatabaseName);
             var rows = (await connection.QueryAsync<dynamic>("SELECT Name FROM Migrations"))?.Select(x=>(string)x.Name).ToList();
@@ -45,6 +53,7 @@ namespace SpyRadioStationApi.Endpoints
             var i = Directory.Exists("db");
             var diff = Directory.Exists("diff");
             string files = "";
+            
             if (diff) 
             {
                 var list = Directory.GetFiles("diff");
