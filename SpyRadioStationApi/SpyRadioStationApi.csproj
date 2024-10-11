@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Content Include="db\SpyStationDb.sqlite">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
