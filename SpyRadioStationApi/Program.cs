@@ -79,15 +79,20 @@ namespace SpyRadioStationApi
 
             builder.Services.AddFastEndpoints();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(option =>
+
+            if (builder.Environment.IsDevelopment())
             {
-                var info = new OpenApiInfo
+                builder.Services.AddSwaggerGen(option =>
                 {
-                    Title = "SpyStationApi",
-                    Version = "v1"
-                };
-                option.SwaggerDoc("v1", info);
-            });
+                    var info = new OpenApiInfo
+                    {
+                        Title = "SpyStationApi",
+                        Version = "v1"
+                    };
+                    option.SwaggerDoc("v1", info);
+                });
+            }
+
             var app = builder.Build();
 
             app.UseDatabaseUpdate();

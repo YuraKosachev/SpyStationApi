@@ -46,7 +46,7 @@ namespace SpyRadioStationApi.Endpoints
             }
 
             var headers = HttpContext.Request.Headers;
-             var remoteIp = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+            HttpContext.Request.Headers.TryGetValue("True-Client-Ip", out var remoteIp);
             var hesd = new HeaderInformation(headers, remoteIp);
             await SendOkAsync(new InformationResponse(hesd,_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff, string.Join(",",rows), information, files));
             

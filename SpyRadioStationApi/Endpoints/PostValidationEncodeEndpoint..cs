@@ -31,7 +31,7 @@ namespace SpyRadioStationApi.Endpoints
 
             if (isValid)
             {
-                var remoteIp = HttpContext.Connection.RemoteIpAddress;
+                HttpContext.Request.Headers.TryGetValue("True-Client-Ip", out var remoteIp);
                 var notification = $"{remoteIp} - successfully decrypted code. Code is {req.encode}";
                 await _notificationRepository.CreateAsync(new Notification { Message = notification, NotificationType = Models.enums.NotificationType.Winner });
             }
