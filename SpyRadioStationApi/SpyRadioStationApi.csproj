@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="db\SpyStationDb.sqlite">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    <Content Include="db\SpyStationDb.sqlite">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
