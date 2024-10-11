@@ -6,10 +6,12 @@ using SpyRadioStationApi.Configurations;
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Interfaces.Services;
+using System.Runtime.InteropServices;
 
 namespace SpyRadioStationApi.Endpoints
 {
-    public record InformationResponse(string access, string token, bool isdbFolderExists, string db, string diff, int rows);
+    public record InformationResponse(string access, string token, bool isdbFolderExists, string db, string diff, string rows, dynamic info);
+    public record TableInformation(string tables);
     public class GetTestInformationEndpoint : EndpointWithoutRequest<InformationResponse>
     {
         private readonly DbConfiguration _dbConfiguration;
@@ -32,10 +34,10 @@ namespace SpyRadioStationApi.Endpoints
         public override async Task HandleAsync(CancellationToken ct)
         {
             using var connection = new SqliteConnection(_dbConfiguration.DatabaseName);
-            var rows = await connection.ExecuteAsync("SELECT * FROM Migrations");
-
+            var rows = (await connection.QueryAsync<dynamic>("SELECT Name FROM Migrations"))?.Select(x=>(string)x.Name).ToList();
+            var information = await connection.QueryAsync<dynamic>("SELECT name FROM sqlite_master");//)?.Select(x => (string)x.Name).ToList();
             var i = Directory.Exists("db");
-           await SendOkAsync(new InformationResponse(_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff, rows));
+           await SendOkAsync(new InformationResponse(_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff, string.Join(",",rows), information));
             
         }
     }
