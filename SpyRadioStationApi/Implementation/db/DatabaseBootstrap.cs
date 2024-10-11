@@ -17,7 +17,7 @@ namespace SpyRadioStationApi.Implementation.db
             _configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public async Task Setup()
+        public async Task<bool> Setup()
         {
             var files = Directory.GetFiles(_configuration.Diff)
                 .Where(file => file.EndsWith(".sql"))
@@ -26,13 +26,15 @@ namespace SpyRadioStationApi.Implementation.db
             if (!Directory.Exists(_configuration.DbFolder))
                 Directory.CreateDirectory(_configuration?.DbFolder);
 
+            bool result = false;
+
             using var connection = new SqliteConnection(_configuration.DatabaseName);
 
             await connection.ExecuteAsync("""
                     CREATE TABLE IF NOT EXISTS Migrations (Id INTEGER PRIMARY KEY AUTOINCREMENT,Name VARCHAR(300) NOT NULL, Date DATE NOT NULL);
                 """);
 
-            if (!files.Any()) return;
+            if (!files.Any()) return false;
 
             var migrations = (await connection.QueryAsync<Migration>("SELECT Id, Name, Date FROM Migrations;"))
                 .Select(m => m.Name).ToArray();
@@ -56,7 +58,11 @@ namespace SpyRadioStationApi.Implementation.db
                 await connection.ExecuteAsync(query);
 
             if (!string.IsNullOrEmpty(queryMigration))
+            {
                 await connection.ExecuteAsync(queryMigration);
+            }
+
+            return !string.IsNullOrEmpty(queryMigration);
         }
 
 

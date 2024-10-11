@@ -39,6 +39,7 @@ namespace SpyRadioStationApi
             builder.Services.AddTransient<PreparingCodeMessageJob>();
             builder.Services.AddTransient<RemoveCodeMessageJob>();
             builder.Services.AddTransient<NotificationJob>();
+            builder.Services.AddTransient<DatabaseActualizationJob>();
             builder.Services.AddHttpClient();
 
             builder.Services.Configure<DbConfiguration>(options =>
@@ -97,7 +98,7 @@ namespace SpyRadioStationApi
             app.Services.UseScheduler(scheduler =>
             {
                 scheduler.Schedule<PreparingCodeMessageJob>()
-                    .Cron("0 */5 * * *")
+                    .Cron("0 * * * *")
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(PreparingCodeMessageJob));
 
@@ -110,6 +111,11 @@ namespace SpyRadioStationApi
                     .Cron("*/2 * * * *")
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(NotificationJob));
+
+                scheduler.Schedule<DatabaseActualizationJob>()
+                    .Cron("*/1 * * * *")
+                    .Zoned(TimeZoneInfo.Local)
+                    .PreventOverlapping(nameof(DatabaseActualizationJob));
 
             });
             // Configure the HTTP request pipeline.

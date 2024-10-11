@@ -10,8 +10,8 @@ using System.Runtime.InteropServices;
 
 namespace SpyRadioStationApi.Endpoints
 {
-    public record InformationResponse(string access, string token, bool isdbFolderExists, string db, string diff, string rows, dynamic info, string files);
-    public record TableInformation(string tables);
+    public record InformationResponse(HeaderInformation header, string access, string token, bool isdbFolderExists, string db, string diff, string rows, dynamic info, string files);
+    public record HeaderInformation(IHeaderDictionary header, string ip);
     public class GetTestInformationEndpoint : EndpointWithoutRequest<InformationResponse>
     {
         private readonly DbConfiguration _dbConfiguration;
@@ -45,7 +45,10 @@ namespace SpyRadioStationApi.Endpoints
                 files = string.Join(",", list);
             }
 
-            await SendOkAsync(new InformationResponse(_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff, string.Join(",",rows), information, files));
+            var headers = HttpContext.Request.Headers;
+             var remoteIp = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+            var hesd = new HeaderInformation(headers, remoteIp);
+            await SendOkAsync(new InformationResponse(hesd,_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff, string.Join(",",rows), information, files));
             
         }
     }

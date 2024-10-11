@@ -6,8 +6,6 @@ using SpyRadioStationApi.Interfaces.Services;
 using SpyRadioStationApi.Models;
 using SpyRadioStationApi.Models.db;
 using SpyRadioStationApi.Models.enums;
-using System.Diagnostics;
-using System.Xml;
 
 namespace SpyRadioStationApi.Jobs
 {
@@ -44,6 +42,7 @@ namespace SpyRadioStationApi.Jobs
                 Plugboard = key?.Plugboard
             };
 
+            var radiograms = new List<Radiogram>();
             foreach (var message in messages)
             {
                 var checkMessage = message?.Trim().ToUpper();
@@ -54,7 +53,7 @@ namespace SpyRadioStationApi.Jobs
                 try
                 {
                     var encode = _codeService.GetCodeMessage(checkMessage, setting);
-                    await _radiogramRepository.CreateAsync(new Radiogram { Message = checkMessage, Encode = encode, CreateAt = DateTime.Now });;
+                    radiograms.Add(new Radiogram { Message = checkMessage, Encode = encode, CreateAt = DateTime.Now });
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +61,17 @@ namespace SpyRadioStationApi.Jobs
                 }
             }
 
-            await _notificationRepository.CreateAsync(new Notification { Message = $"The parsing has ended. Count handling messages {messages.Count}", NotificationType = NotificationType.Info }); 
+            //save 
+            for (int i = 0; ; i++) 
+            {
+                var portion = radiograms.Skip(i * 30).Take(30).ToList();
+                if (portion == null || !portion.Any())
+                    break;
+                await _radiogramRepository.CreateRangeAsync(portion);
+            }
+
+            await _notificationRepository.CreateAsync(new Notification { Message = $"The parsing has ended. Count new radiograms preparing {radiograms.Count}",
+                NotificationType = NotificationType.Info }); 
 
         }
         private async Task<IList<string>> TryToGetMessage()
