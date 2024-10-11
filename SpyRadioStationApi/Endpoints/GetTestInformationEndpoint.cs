@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace SpyRadioStationApi.Endpoints
 {
-    public record InformationResponse(string access, string token, bool isdbFolderExists, string db, string diff, string rows, dynamic info);
+    public record InformationResponse(string access, string token, bool isdbFolderExists, string db, string diff, string rows, dynamic info, string files);
     public record TableInformation(string tables);
     public class GetTestInformationEndpoint : EndpointWithoutRequest<InformationResponse>
     {
@@ -37,7 +37,15 @@ namespace SpyRadioStationApi.Endpoints
             var rows = (await connection.QueryAsync<dynamic>("SELECT Name FROM Migrations"))?.Select(x=>(string)x.Name).ToList();
             var information = await connection.QueryAsync<dynamic>("SELECT name FROM sqlite_master");//)?.Select(x => (string)x.Name).ToList();
             var i = Directory.Exists("db");
-           await SendOkAsync(new InformationResponse(_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff, string.Join(",",rows), information));
+            var diff = Directory.Exists("diff");
+            string files = "";
+            if (diff) 
+            {
+                var list = Directory.GetFiles("diff");
+                files = string.Join(",", list);
+            }
+
+            await SendOkAsync(new InformationResponse(_access?.Key, _telegram?.Token, i, _dbConfiguration.DatabaseName, _dbConfiguration.Diff, string.Join(",",rows), information, files));
             
         }
     }
