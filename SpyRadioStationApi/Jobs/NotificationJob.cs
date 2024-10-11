@@ -14,7 +14,8 @@ namespace SpyRadioStationApi.Jobs
         private readonly Telegram _configuration;
         public NotificationJob(INotificationRepository notificationRepository,
             IHttpClientFactory httpClientFactory,
-            IOptions<Telegram> configuration) : base(notificationRepository)
+            IOptions<Telegram> configuration,
+            ILogger<BaseJob> logger) : base(notificationRepository, logger)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));

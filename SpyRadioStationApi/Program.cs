@@ -38,7 +38,7 @@ namespace SpyRadioStationApi
             builder.Services.AddTransient<PreparingCodeMessageJob>();
             builder.Services.AddTransient<RemoveCodeMessageJob>();
             builder.Services.AddTransient<NotificationJob>();
-            builder.Services.AddTransient<DatabaseActualizationJob>();
+           // builder.Services.AddTransient<DatabaseActualizationJob>();
             builder.Services.AddTransient<CheckPulseJob>();
             builder.Services.AddHttpClient();
 
@@ -131,10 +131,10 @@ namespace SpyRadioStationApi
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(NotificationJob));
 
-                scheduler.Schedule<DatabaseActualizationJob>()
-                    .Cron("*/1 * * * *")
-                    .Zoned(TimeZoneInfo.Local)
-                    .PreventOverlapping(nameof(DatabaseActualizationJob));
+                //scheduler.Schedule<DatabaseActualizationJob>()
+                //    .Cron("*/1 * * * *")
+                //    .Zoned(TimeZoneInfo.Local)
+                //    .PreventOverlapping(nameof(DatabaseActualizationJob));
 
             });
             // Configure the HTTP request pipeline.

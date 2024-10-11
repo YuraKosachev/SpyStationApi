@@ -20,7 +20,8 @@ namespace SpyRadioStationApi.Jobs
             IKeyCodeMachineRepository keyProvider,
             IRadiogramRepository radiogramRepository,
             IHttpClientFactory httpClientFactory,
-            INotificationRepository notificationRepository):base(notificationRepository)
+            INotificationRepository notificationRepository,
+            ILogger<BaseJob> logger):base(notificationRepository, logger)
         {
             _keyProvider = keyProvider;
             _codeService = codeService;

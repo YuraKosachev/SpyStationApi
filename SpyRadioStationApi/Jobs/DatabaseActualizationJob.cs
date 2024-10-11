@@ -8,7 +8,9 @@ namespace SpyRadioStationApi.Jobs
     public class DatabaseActualizationJob : BaseJob
     {
         private readonly IDatabaseBootstrap _bootstrap;
-        public DatabaseActualizationJob(IDatabaseBootstrap bootstrap, INotificationRepository notification) : base(notification)
+        public DatabaseActualizationJob(IDatabaseBootstrap bootstrap,
+            INotificationRepository notification,
+            ILogger<BaseJob> logger) : base(notification, logger)
         {
             _bootstrap = bootstrap;
         }

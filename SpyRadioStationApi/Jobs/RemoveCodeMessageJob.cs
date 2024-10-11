@@ -8,7 +8,8 @@ namespace SpyRadioStationApi.Jobs
     {
         private readonly IRadiogramRepository _radiogramRepository;
         public RemoveCodeMessageJob(IRadiogramRepository radiogramRepository,
-            INotificationRepository notificationRepository):base(notificationRepository) 
+            INotificationRepository notificationRepository,
+            ILogger<BaseJob> logger):base(notificationRepository, logger) 
         {
             _radiogramRepository = radiogramRepository;
         }
