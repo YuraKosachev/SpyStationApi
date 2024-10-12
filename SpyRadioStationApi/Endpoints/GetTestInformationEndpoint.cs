@@ -6,7 +6,7 @@ using SpyRadioStationApi.Interfaces.db;
 
 namespace SpyRadioStationApi.Endpoints
 {
-    public record InformationResponse(HeaderInformation header, string access, string token, bool isdbFolderExists, string db, string diff, string rows, dynamic info, string files);
+    public record InformationResponse(HeaderInformation header, string access, string token, bool isdbFolderExists, string db, string diff, string rows, string files);
     public record HeaderInformation(IHeaderDictionary header, string ip);
 
     public class GetTestInformationEndpoint : EndpointWithoutRequest<InformationResponse>
@@ -42,7 +42,7 @@ namespace SpyRadioStationApi.Endpoints
 
             using var connection = _databaseContext.CreateConnection();
             var rows = (await connection.QueryAsync<dynamic>("SELECT Name FROM Migrations"))?.Select(x => (string)x.Name).ToList();
-            var information = await connection.QueryAsync<dynamic>("SELECT name FROM sqlite_master");//)?.Select(x => (string)x.Name).ToList();
+           
             var i = Directory.Exists("db");
             var diff = Directory.Exists("diff");
             string files = "";
@@ -56,7 +56,7 @@ namespace SpyRadioStationApi.Endpoints
             var headers = HttpContext.Request.Headers;
             HttpContext.Request.Headers.TryGetValue("True-Client-Ip", out var remoteIp);
             var hesd = new HeaderInformation(headers, remoteIp);
-            await SendOkAsync(new InformationResponse(hesd, _access?.Key, _telegram?.Token, i, _dbConfiguration.ConnectionString, _dbConfiguration.Diff, string.Join(",", rows), information, files));
+            await SendOkAsync(new InformationResponse(hesd, _access?.Key, _telegram?.Token, i, _dbConfiguration.ConnectionString, _dbConfiguration.Diff, string.Join(",", rows), files));
         }
     }
 }
