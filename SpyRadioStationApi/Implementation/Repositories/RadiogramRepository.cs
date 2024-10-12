@@ -1,8 +1,6 @@
 ﻿using Dapper;
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Options;
-using SpyRadioStationApi.Configurations;
 using SpyRadioStationApi.Implementation.Mapping;
+using SpyRadioStationApi.Interfaces.db;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Models.db;
 using System.Text;
@@ -11,16 +9,16 @@ namespace SpyRadioStationApi.Implementation.Repositories
 {
     public class RadiogramRepository : IRadiogramRepository
     {
-        private readonly DbConfiguration _configuration;
+        private readonly IDatabaseContext _dbContext;
 
-        public RadiogramRepository(IOptions<DbConfiguration> configuration)
+        public RadiogramRepository(IDatabaseContext dbContext)
         {
-            _configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));
+            _dbContext = dbContext;
         }
 
         public async Task CreateAsync(Radiogram radiogram)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             await connection.QueryAsync("""
                 INSERT INTO Radiograms(Message, Encode, CreateAt ) VALUES(@message, @encode, @date);
@@ -30,17 +28,18 @@ namespace SpyRadioStationApi.Implementation.Repositories
         public async Task CreateRangeAsync(IList<Radiogram> radiograms)
         {
             StringBuilder builder = new StringBuilder();
-            foreach (Radiogram radiogram in radiograms) {
+            foreach (Radiogram radiogram in radiograms)
+            {
                 builder.Append($"INSERT INTO Radiograms(Message, Encode, CreateAt ) VALUES('{radiogram.Message}', '{radiogram.Encode}', '{radiogram.CreateAt}');");
             }
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             await connection.QueryAsync(builder.ToString());
         }
 
         public async Task DeleteUntilAsync(DateTime date)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             await connection.QueryAsync("""
                 DELETE FROM Radiograms WHERE CreateAt < @date
@@ -49,7 +48,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task<IList<Radiogram>> GetAllAsync()
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             var list = await connection.QueryAsync<dynamic>("""
                 SELECT Id, Message, Encode, CreateAt FROM Radiograms
@@ -65,7 +64,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task<Radiogram> GetByIdAsync(int id)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             var item = await connection.QueryFirstOrDefaultAsync<dynamic>("""
                 SELECT Id, Message, Encode, CreateAt FROM Radiograms
@@ -77,10 +76,10 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task<Radiogram> GetLastByDateAsync()
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             var item = await connection.QueryFirstOrDefaultAsync<dynamic>("""
-                SELECT Id, Message, Encode, CreateAt FROM Radiograms 
+                SELECT Id, Message, Encode, CreateAt FROM Radiograms
                 ORDER BY CreateAt desc
                 LIMIT 1
                 """);
@@ -90,7 +89,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task<bool> ValidationAsync(string encode, string decode)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
             var item = await connection.QueryFirstOrDefaultAsync<dynamic>("""
                 SELECT Id, Message, Encode, CreateAt FROM Radiograms
                 WHERE Encode = @encode AND Message = @decode

@@ -2,6 +2,7 @@
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Interfaces.Services;
+
 namespace SpyRadioStationApi.Endpoints
 {
     public class GetEncodeMessageEndpoint : EndpointWithoutRequest<CodeResponse>
@@ -15,6 +16,7 @@ namespace SpyRadioStationApi.Endpoints
             _codeService = codeService;
             _radiogramRepository = radiogramRepository;
         }
+
         public override void Configure()
         {
             Get("/spy/enigma/message");
@@ -30,7 +32,6 @@ namespace SpyRadioStationApi.Endpoints
                 var telegram = telegrams[new Random().Next(0, telegrams.Count - 1)];
                 await SendOkAsync(new CodeResponse(telegram?.Encode, telegram.CreateAt));
             }
-
             else
                 await SendErrorsAsync();
         }

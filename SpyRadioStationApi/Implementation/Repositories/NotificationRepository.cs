@@ -1,8 +1,6 @@
 ﻿using Dapper;
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Options;
-using SpyRadioStationApi.Configurations;
 using SpyRadioStationApi.Implementation.Mapping;
+using SpyRadioStationApi.Interfaces.db;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Models.db;
 using SpyRadioStationApi.Models.enums;
@@ -11,16 +9,16 @@ namespace SpyRadioStationApi.Implementation.Repositories
 {
     public class NotificationRepository : INotificationRepository
     {
-        private readonly DbConfiguration _configuration;
+        private readonly IDatabaseContext _dbContext;
 
-        public NotificationRepository(IOptions<DbConfiguration> configuration)
+        public NotificationRepository(IDatabaseContext dbContext)
         {
-            _configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));
+            _dbContext = dbContext;
         }
 
         public async Task CreateAsync(Notification notification)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             await connection.QueryAsync("""
                 INSERT INTO Notifications(Message, Status, Type, CreateAt ) VALUES(@message, @status, @type, @date)
@@ -29,7 +27,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task DeleteByStatusAsync(Status status)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             await connection.QueryAsync("""
                 DELETE FROM Notifications WHERE Status = @status
@@ -38,7 +36,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task<IList<Notification>> GetAllAsync()
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             var list = await connection.QueryAsync<dynamic>("""
                 SELECT Id, Message, Status, Type, CreateAt FROM Notifications
@@ -54,7 +52,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task<IList<Notification>> GetByStatusAsync(Status status)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             var list = await connection.QueryAsync<dynamic>("""
                 SELECT Id, Message, Status, Type, CreateAt FROM Notifications WHERE Status = @status
@@ -70,7 +68,7 @@ namespace SpyRadioStationApi.Implementation.Repositories
 
         public async Task UpdateAsync(Status status, params int[] ids)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
+            using var connection = _dbContext.CreateConnection();
 
             var predicate = string.Join(" OR ", ids.Select(x => $"Id={x}").ToArray());
             var query = $"UPDATE Notifications SET Status = {(int)status} WHERE {predicate}";

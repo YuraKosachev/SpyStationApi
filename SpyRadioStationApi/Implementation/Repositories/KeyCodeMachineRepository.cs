@@ -1,31 +1,26 @@
-﻿
-using Dapper;
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Options;
-using SpyRadioStationApi.Configurations;
+﻿using Dapper;
 using SpyRadioStationApi.Implementation.Mapping;
+using SpyRadioStationApi.Interfaces.db;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Models.db;
-
 
 namespace SpyRadioStationApi.Implementation.Repositories
 {
     public class KeyCodeMachineRepository : IKeyCodeMachineRepository
     {
-        private readonly DbConfiguration _configuration;
+        private readonly IDatabaseContext _dbContext;
 
-        public KeyCodeMachineRepository(IOptions<DbConfiguration> configuration)
+        public KeyCodeMachineRepository(IDatabaseContext dbContext)
         {
-            _configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));
+            _dbContext = dbContext;
         }
-
 
         public async Task<Key> GetByDayAsync(int day)
         {
-            using var connection = new SqliteConnection(_configuration.DatabaseName);
-          
+            using var connection = _dbContext.CreateConnection();
+
             var item = await connection.QueryFirstAsync<dynamic>("""
-                SELECT Id, Slow, Medium, Fast, Day, Plugboard, CreateAt FROM Keys 
+                SELECT Id, Slow, Medium, Fast, Day, Plugboard, CreateAt FROM Keys
                 WHERE Day = @day
                 """, new { day });
 

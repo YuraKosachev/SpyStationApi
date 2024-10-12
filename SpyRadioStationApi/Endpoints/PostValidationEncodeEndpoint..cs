@@ -2,7 +2,6 @@
 using SpyRadioStationApi.Contracts.Request;
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
-using SpyRadioStationApi.Interfaces.Services;
 using SpyRadioStationApi.Models.db;
 
 namespace SpyRadioStationApi.Endpoints
@@ -18,11 +17,13 @@ namespace SpyRadioStationApi.Endpoints
             _radiogramRepository = radiogramRepository;
             _notificationRepository = notificationRepository;
         }
+
         public override void Configure()
         {
             Post("/spy/enigma/validation");
             AllowAnonymous();
         }
+
         public override async Task HandleAsync(ValidationRequest req, CancellationToken ct)
         {
             if (req?.encode == null || req?.decode == null)
@@ -44,6 +45,5 @@ namespace SpyRadioStationApi.Endpoints
 
             await SendOkAsync(new ValidationResponse(isValid, message), ct);
         }
-
     }
 }

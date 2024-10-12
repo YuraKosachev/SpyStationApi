@@ -6,7 +6,6 @@ using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Interfaces.Services;
 using SpyRadioStationApi.Models;
-using System.Configuration;
 
 namespace SpyRadioStationApi.Endpoints
 {
@@ -15,6 +14,7 @@ namespace SpyRadioStationApi.Endpoints
         private readonly ICodeService _codeService;
         private readonly IKeyCodeMachineRepository _codeMachineRepository;
         private readonly Access _access;
+
         public PostEncodeEndpoint(ICodeService codeService,
             IKeyCodeMachineRepository codeMachineRepository,
             IOptions<Access> access)
@@ -23,11 +23,13 @@ namespace SpyRadioStationApi.Endpoints
             _codeService = codeService;
             _access = access?.Value ?? throw new ArgumentNullException(nameof(access));
         }
+
         public override void Configure()
         {
             Post("/spy/enigma/encode");
             AllowAnonymous();
         }
+
         public override async Task HandleAsync(CodeRequest req, CancellationToken ct)
         {
             var accessKey = HttpContext.Request?.Headers["SPY-Access"];
@@ -52,6 +54,5 @@ namespace SpyRadioStationApi.Endpoints
 
             await SendOkAsync(new CodeResponse(code, DateTime.Now), ct);
         }
-
     }
 }

@@ -1,20 +1,19 @@
-
-using FastEndpoints;
-using Microsoft.OpenApi.Models;
-using SpyRadioStationApi.Interfaces.CodeMachines;
-using SpyRadioStationApi.Implementation.CodeMachines;
-using SpyRadioStationApi.Implementation.Services;
-using SpyRadioStationApi.Interfaces.Services;
-using SpyRadioStationApi.Interfaces.db;
-using SpyRadioStationApi.Implementation.db;
-using SpyRadioStationApi.Extensions;
 using Coravel;
-using SpyRadioStationApi.Jobs;
-using SpyRadioStationApi.Interfaces.Repositories;
-using SpyRadioStationApi.Implementation.Repositories;
-using SpyRadioStationApi.Configurations;
+using FastEndpoints;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.OpenApi.Models;
+using SpyRadioStationApi.Configurations;
+using SpyRadioStationApi.Context;
+using SpyRadioStationApi.Extensions;
 using SpyRadioStationApi.Handlers;
+using SpyRadioStationApi.Implementation.CodeMachines;
+using SpyRadioStationApi.Implementation.Repositories;
+using SpyRadioStationApi.Implementation.Services;
+using SpyRadioStationApi.Interfaces.CodeMachines;
+using SpyRadioStationApi.Interfaces.db;
+using SpyRadioStationApi.Interfaces.Repositories;
+using SpyRadioStationApi.Interfaces.Services;
+using SpyRadioStationApi.Jobs;
 
 namespace SpyRadioStationApi
 {
@@ -34,11 +33,10 @@ namespace SpyRadioStationApi
             builder.Services.AddScoped<IKeyCodeMachineRepository, KeyCodeMachineRepository>();
             builder.Services.AddScoped<IRadiogramRepository, RadiogramRepository>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-            builder.Services.AddSingleton<IDatabaseBootstrap, DatabaseBootstrap>();
+            builder.Services.AddSingleton<IDatabaseContext, SpyDbContext>();
             builder.Services.AddTransient<PreparingCodeMessageJob>();
             builder.Services.AddTransient<RemoveCodeMessageJob>();
             builder.Services.AddTransient<NotificationJob>();
-           // builder.Services.AddTransient<DatabaseActualizationJob>();
             builder.Services.AddTransient<CheckPulseJob>();
             builder.Services.AddHttpClient();
 
@@ -49,10 +47,8 @@ namespace SpyRadioStationApi
                     builder.Configuration.GetSection("Database").Bind(options);
                     return;
                 }
-                options.Diff = Environment.GetEnvironmentVariable("DB_Diff");
-                options.DatabaseName = Environment.GetEnvironmentVariable("DB_DatabaseName");
-                options.DbFolder = Environment.GetEnvironmentVariable("DB_Folder");
-
+                options.ConnectionString = Environment.GetEnvironmentVariable("Database_ConnectionString");
+                options.Diff = Environment.GetEnvironmentVariable("Database_Diff");
             });
             builder.Services.Configure<Telegram>(options =>
             {
@@ -71,16 +67,16 @@ namespace SpyRadioStationApi
                 if (builder.Environment.IsDevelopment())
                 {
                     builder.Configuration.GetSection("Access").Bind(options);
+                    return;
                 }
                 options.Key = Environment.GetEnvironmentVariable("Access_Key");
-
-
             });
             builder.Services.Configure<Pulse>(options =>
             {
                 if (builder.Environment.IsDevelopment())
                 {
                     builder.Configuration.GetSection("Pulse").Bind(options);
+                    return;
                 }
                 options.Address = Environment.GetEnvironmentVariable("Pulse_Address");
             });
@@ -104,6 +100,9 @@ namespace SpyRadioStationApi
             var app = builder.Build();
 
             app.UseExceptionHandler();
+
+            // configure HTTP request pipeline
+
             app.UseDatabaseUpdate();
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -130,12 +129,6 @@ namespace SpyRadioStationApi
                     .Cron("*/2 * * * *")
                     .Zoned(TimeZoneInfo.Local)
                     .PreventOverlapping(nameof(NotificationJob));
-
-                //scheduler.Schedule<DatabaseActualizationJob>()
-                //    .Cron("*/1 * * * *")
-                //    .Zoned(TimeZoneInfo.Local)
-                //    .PreventOverlapping(nameof(DatabaseActualizationJob));
-
             });
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -147,8 +140,6 @@ namespace SpyRadioStationApi
             app.UseHttpsRedirection();
             app.UseFastEndpoints();
             app.Run();
-
-
         }
     }
 }

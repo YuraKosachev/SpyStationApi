@@ -4,7 +4,6 @@ using SpyRadioStationApi.Configurations;
 using SpyRadioStationApi.Contracts.Request;
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
-using SpyRadioStationApi.Interfaces.Services;
 using SpyRadioStationApi.Models.enums;
 
 namespace SpyRadioStationApi.Endpoints
@@ -13,17 +12,20 @@ namespace SpyRadioStationApi.Endpoints
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly Access _access;
+
         public PostNotificationEndpoint(INotificationRepository notificationRepository,
             IOptions<Access> access)
         {
             _notificationRepository = notificationRepository;
             _access = access?.Value ?? throw new ArgumentNullException(nameof(access));
         }
+
         public override void Configure()
         {
             Post("/spy/notification/message");
             AllowAnonymous();
         }
+
         public override async Task HandleAsync(NotificationRequest req, CancellationToken ct)
         {
             var accessKey = HttpContext.Request?.Headers["SPY-Access"];
@@ -38,6 +40,5 @@ namespace SpyRadioStationApi.Endpoints
 
             await SendOkAsync(new NotificationResponse("Successfully created!"), ct);
         }
-
     }
 }
