@@ -30,9 +30,11 @@ namespace SpyRadioStationApi.Endpoints
                 await SendErrorsAsync();
             var isValid = await _radiogramRepository.ValidationAsync(req.encode, req.decode);
 
+            HttpContext.Request.Headers.TryGetValue("True-Client-Ip", out var remoteIp);
+            await _notificationRepository.CreateAsync(new Notification { Message = $"{remoteIp} - try to validation code", NotificationType = Models.enums.NotificationType.Info });
+           
             if (isValid)
             {
-                HttpContext.Request.Headers.TryGetValue("True-Client-Ip", out var remoteIp);
                 var notification = $"{remoteIp} - successfully decrypted code. Code is {req.encode}";
                 await _notificationRepository.CreateAsync(new Notification { Message = notification, NotificationType = Models.enums.NotificationType.Winner });
             }
