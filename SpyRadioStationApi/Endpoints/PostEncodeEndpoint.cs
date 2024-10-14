@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Microsoft.Extensions.Options;
 using SpyRadioStationApi.Configurations;
+using SpyRadioStationApi.Constants;
 using SpyRadioStationApi.Contracts.Request;
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
@@ -52,7 +53,7 @@ namespace SpyRadioStationApi.Endpoints
 
             var code = _codeService.GetCodeMessage(req.message, setting);
 
-            await SendOkAsync(new CodeResponse(code, DateTime.Now), ct);
+            await SendOkAsync(new CodeResponse(code, DateTime.Now.ToString(DateTimeConstants.Date)), ct);
         }
     }
 }

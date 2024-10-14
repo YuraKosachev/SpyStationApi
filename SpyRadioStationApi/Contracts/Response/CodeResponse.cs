@@ -1,5 +1,5 @@
 ﻿namespace SpyRadioStationApi.Contracts.Response
 {
-    public record CodeResponse(string message, DateTime date);
+    public record CodeResponse(string message, string date);
    
 }

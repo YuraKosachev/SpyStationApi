@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using SpyRadioStationApi.Constants;
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
 using SpyRadioStationApi.Interfaces.Services;
@@ -30,7 +31,7 @@ namespace SpyRadioStationApi.Endpoints
             if (telegrams != null && telegrams.Any())
             {
                 var telegram = telegrams[new Random().Next(0, telegrams.Count - 1)];
-                await SendOkAsync(new CodeResponse(telegram?.Encode, telegram.CreateAt));
+                await SendOkAsync(new CodeResponse(telegram.Encode, telegram.CreateAt.ToString(DateTimeConstants.Date)));
             }
             else
                 await SendErrorsAsync();
