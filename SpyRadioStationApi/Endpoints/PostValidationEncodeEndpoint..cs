@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using SpyRadioStationApi.Constants;
 using SpyRadioStationApi.Contracts.Request;
 using SpyRadioStationApi.Contracts.Response;
 using SpyRadioStationApi.Interfaces.Repositories;
@@ -39,13 +40,19 @@ namespace SpyRadioStationApi.Endpoints
                 await _notificationRepository.CreateAsync(new Notification { Message = notification, NotificationType = Models.enums.NotificationType.Winner });
             }
 
-            var message = isValid
-                ? "The message was successfully decrypted!!"
-                : """
+            string ascii = null;
+            string message = """
                 Validation of the message failed, the message may have expired or it was incorrectly decrypted. Try again!!
                 """;
 
-            await SendOkAsync(new ValidationResponse(isValid, message), ct);
+            if (isValid) 
+            {
+                var random = new Random();
+                ascii = AsciiConstants.AsciiImages[random.Next(0, AsciiConstants.AsciiImages.Length - 1)];
+                message = "The message was successfully decrypted!!";
+            }
+
+            await SendOkAsync(new ValidationResponse(isValid, message, ascii), ct);
         }
     }
 }

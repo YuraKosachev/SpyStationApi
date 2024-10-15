@@ -46,9 +46,13 @@ namespace SpyRadioStationApi.Handlers
                 Status = statusCode,
                 Title = reasonPhrase,
             };
-            problemDetails.Detail = exception.ToString();
-            problemDetails.Extensions["traceId"] = context.TraceIdentifier;
-            problemDetails.Extensions["data"] = exception.Data;
+
+            if (env.IsDevelopment())
+            {
+                problemDetails.Detail = exception.ToString();
+                problemDetails.Extensions["traceId"] = context.TraceIdentifier;
+                problemDetails.Extensions["data"] = exception.Data;
+            }
 
             return problemDetails;
         }
